@@ -27,7 +27,9 @@ export default async function WorkflowsPage({ searchParams }: Props) {
       <HydrateClient>
         <ErrorBoundary fallback={<WorkflowsError />}>
           <Suspense fallback={<WorkflowsLoading />}>
-            <WorkflowsList />
+            <div className="flex-1">
+              <WorkflowsList />
+            </div>
           </Suspense>
         </ErrorBoundary>
       </HydrateClient>
