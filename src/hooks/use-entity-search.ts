@@ -1,5 +1,6 @@
-import { PAGINATION } from "@/constants/pagination";
 import { useEffect, useEffectEvent, useState } from "react";
+
+import { PAGINATION } from "@/constants/pagination";
 
 interface UseEntitySearchProps<T extends { search: string; page: number }> {
   params: T;
@@ -14,8 +15,8 @@ export function useEntitySearch<T extends { search: string; page: number }>({
 }: UseEntitySearchProps<T>) {
   const [localSearch, setLocalSearch] = useState(params.search);
 
-  const searchChange = useEffectEvent(() => {
-    setLocalSearch(params.search);
+  const searchChange = useEffectEvent((search: string) => {
+    setLocalSearch(search);
   });
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export function useEntitySearch<T extends { search: string; page: number }>({
   }, [debounceMs, localSearch, params, setParams]);
 
   useEffect(() => {
-    searchChange();
+    searchChange(params.search);
   }, [params.search]);
 
   return {

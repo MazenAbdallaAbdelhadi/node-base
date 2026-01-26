@@ -1,30 +1,70 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { formatDistanceToNow } from "date-fns";
+import { WorkflowIcon } from "lucide-react";
 
 import {
   EntityContainer,
+  EntityEmptyState,
   EntityErrorState,
   EntityHeader,
+  EntityItem,
+  EntityList,
   EntityLoadingState,
   EntityPagination,
   EntitySearch,
 } from "@/components/entity-components";
-import { JsonViewer } from "@/components/json-viewer";
+
+import { useEntitySearch } from "@/hooks/use-entity-search";
+
+import type { Workflow } from "@/generated/prisma/client";
 
 import {
   useCreateWorkflow,
+  useRemoveWorkflow,
   useSuspenseWorkflows,
 } from "../hooks/use-workflows";
-import { useEntitySearch } from "@/hooks/use-entity-search";
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
 
 export const WorkflowsList = () => {
   const workflows = useSuspenseWorkflows();
 
   return (
-    <div>
-      <JsonViewer obj={workflows.data} />
-    </div>
+    <EntityList
+      items={workflows.data.items}
+      getKey={(item) => item.id}
+      emptyView={<WorkflowsEmpty />}
+      renderItem={(item) => <WorkflowItem item={item} />}
+    />
+  );
+};
+
+const WorkflowItem = ({ item }: { item: Workflow }) => {
+  const removeWorkflow = useRemoveWorkflow();
+
+  const handleRemove = () => {
+    removeWorkflow.mutate({ id: item.id });
+  };
+
+  return (
+    <EntityItem
+      href={`/workflows/${item.id}`}
+      title={item.name}
+      subTitle={
+        <div>
+          Updated {formatDistanceToNow(item.updatedAt, { addSuffix: true })}{" "}
+          &bull; Created{" "}
+          {formatDistanceToNow(item.createdAt, { addSuffix: true })}
+        </div>
+      }
+      image={
+        <div className="size-8 flex items-center justify-center">
+          <WorkflowIcon className="size-5 text-muted-foreground" />
+        </div>
+      }
+      onRemove={handleRemove}
+      isRemoving={removeWorkflow.isPending}
+    />
   );
 };
 
@@ -105,4 +145,17 @@ export const WorkflowsLoading = () => {
 
 export const WorkflowsError = () => {
   return <EntityErrorState message="Failed to load Workflows." />;
+};
+
+export const WorkflowsEmpty = () => {
+  const createWorkflow = useCreateWorkflow();
+  const handleCreate = () => {
+    createWorkflow.mutate();
+  };
+  return (
+    <EntityEmptyState
+      message="You haven't created any workflows yet. Get started by creating your first workflow"
+      onNew={handleCreate}
+    />
+  );
 };
