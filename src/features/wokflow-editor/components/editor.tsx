@@ -191,7 +191,7 @@ export const WorkflowEditorHeader = ({
   );
 };
 
-export const WorkflowEditor = ({ workflowId }: { workflowId: string }) => {
+export const WorkflowEditor = ({ workflowId }: { workflowId: string }) => { 
   const { data: workflow } = useSuspenseWorkflow(workflowId);
   const { theme } = useTheme();
 
