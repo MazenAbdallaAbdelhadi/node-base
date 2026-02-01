@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -23,6 +24,7 @@ import {
   ColorMode,
   Panel,
 } from "@xyflow/react";
+import { useAtomValue, useSetAtom } from "jotai";
 import { SaveIcon } from "lucide-react";
 
 import {
@@ -41,16 +43,18 @@ import {
   EntityLoadingState,
 } from "@/components/entity-components";
 import { LoadingButton } from "@/components/loading-button";
+import { nodeComponents } from "@/constants/node-components";
+import { AddNodeButton } from "@/components/add-node-button";
 
 import {
   useSuspenseWorkflow,
+  useUpdateWorkflow,
   useUpdateWorkflowName,
 } from "@/features/workflows/hooks/use-workflows";
 
+import { editorAtom } from "../store/atoms";
+
 import "@xyflow/react/dist/style.css";
-import { useTheme } from "next-themes";
-import { nodeComponents } from "@/constants/node-components";
-import { AddNodeButton } from "@/components/add-node-button";
 
 export const WorkflowEditorLoading = () => {
   return <EntityLoadingState message="Loading Editor..." />;
@@ -152,14 +156,32 @@ const WorkflowEditorHeaderActions = ({
 }: {
   workflowId: string;
 }) => {
+  const editor = useAtomValue(editorAtom);
+  const saveWorkflow = useUpdateWorkflow();
+
+  const handleSave = () => {
+    if (!editor) {
+      return;
+    }
+
+    const nodes = editor.getNodes();
+    const edges = editor.getEdges();
+
+    saveWorkflow.mutate({
+      id: workflowId,
+      nodes,
+      edges,
+    });
+  };
+
   return (
     <div>
       <LoadingButton
         variant="outline"
         size="sm"
-        onClick={() => {}}
-        loading={false}
-        disabled={false}
+        onClick={handleSave}
+        loading={saveWorkflow.isPending}
+        disabled={saveWorkflow.isPending}
       >
         <SaveIcon className="size-4" />
         <span className="text-sm">Save</span>
@@ -191,8 +213,10 @@ export const WorkflowEditorHeader = ({
   );
 };
 
-export const WorkflowEditor = ({ workflowId }: { workflowId: string }) => { 
+export const WorkflowEditor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId);
+  const setEditor = useSetAtom(editorAtom);
+
   const { theme } = useTheme();
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
@@ -225,7 +249,14 @@ export const WorkflowEditor = ({ workflowId }: { workflowId: string }) => {
         colorMode={theme as ColorMode}
         className="bg-background"
         nodeTypes={nodeComponents}
+        onInit={setEditor}
         fitView
+        snapGrid={[10, 10]}
+        snapToGrid
+        panOnScroll
+        panOnDrag={[1,2]}
+        selectionOnDrag
+        deleteKeyCode={["Backspace", "Delete"]}
       >
         <Background className="bg-background" />
         <Controls />

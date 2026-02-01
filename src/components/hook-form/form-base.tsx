@@ -16,7 +16,7 @@ import {
 export type FormControllerProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-  TTransformedValues = TFieldValues
+  TTransformedValues = TFieldValues,
 > = {
   name: TName;
   label: React.ReactNode;
@@ -25,20 +25,20 @@ export type FormControllerProps<
 };
 
 export type FormControlFunc<
-  ExtraProps extends Record<string, unknown> = Record<never, never>
+  ExtraProps extends Record<string, unknown> = Record<never, never>,
 > = <
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-  TTransformedValues = TFieldValues
+  TTransformedValues = TFieldValues,
 >(
   props: FormControllerProps<TFieldValues, TName, TTransformedValues> &
-    ExtraProps
+    ExtraProps,
 ) => React.ReactNode;
 
 type FormBaseProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-  TTransformedValues = TFieldValues
+  TTransformedValues = TFieldValues,
 > = FormControllerProps<TFieldValues, TName, TTransformedValues> & {
   horizontal?: boolean;
   controlFirst?: boolean;
@@ -48,14 +48,14 @@ type FormBaseProps<
     >[0]["field"] & {
       "aria-invalid": boolean;
       id: string;
-    }
+    },
   ) => React.ReactNode;
 };
 
 export function FormBase<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-  TTransformedValues = TFieldValues
+  TTransformedValues = TFieldValues,
 >({
   children,
   control,
@@ -73,7 +73,6 @@ export function FormBase<
         const labelElement = (
           <>
             <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-            {description && <FieldDescription>{description}</FieldDescription>}
           </>
         );
 
@@ -96,14 +95,21 @@ export function FormBase<
               <>
                 {control}
                 <FieldContent>
-                  {labelElement}
                   {errorElement}
+                  {labelElement}
+                  {description && (
+                    <FieldDescription>{description}</FieldDescription>
+                  )}
                 </FieldContent>
               </>
             ) : (
               <>
                 <FieldContent>{labelElement}</FieldContent>
                 {control}
+                {description && (
+                  <FieldDescription>{description}</FieldDescription>
+                )}
+
                 {errorElement}
               </>
             )}

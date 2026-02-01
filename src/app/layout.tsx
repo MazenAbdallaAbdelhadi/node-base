@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Provider } from "jotai";
 
 import { AppProvider } from "@/components/providers";
 
@@ -36,7 +37,9 @@ export default function RootLayout({
       >
         <TRPCReactProvider>
           <NuqsAdapter>
-            <AppProvider>{children}</AppProvider>
+            <Provider>
+              <AppProvider>{children}</AppProvider>
+            </Provider>
           </NuqsAdapter>
         </TRPCReactProvider>
       </body>
