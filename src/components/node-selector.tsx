@@ -58,7 +58,7 @@ export const NodeSelector = ({
 
   const handleNodeSelect = useCallback(
     (selection: NodeTypeOption) => {
-      // Check if tryinh to add a manual trigger when one already exists
+      // Check if trying to add a manual trigger when one already exists
       if (selection.type === NodeType.MANUAL_TRIGGER) {
         const nodes = getNodes();
         const hasManualTrigger = nodes.some(
@@ -149,7 +149,15 @@ export const NodeSelector = ({
             );
           })}
         </div>
+
         <Separator />
+
+        <SheetHeader>
+          <SheetTitle>What triggers this workflow?</SheetTitle>
+          <SheetDescription>
+            A trigger is a step that starts your workflow.
+          </SheetDescription>
+        </SheetHeader>
         <div>
           {executionNodes.map((nodeType) => {
             const Icon = nodeType.icon;

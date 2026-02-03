@@ -5,9 +5,9 @@ import { prefetchWorkflow } from "@/features/workflows/server/prefetch";
 import {
   WorkflowEditor,
   WorkflowEditorError,
-  WorkflowEditorHeader,
   WorkflowEditorLoading,
 } from "@/features/wokflow-editor/components/editor";
+import { WorkflowEditorHeader } from "@/features/wokflow-editor/components/workflow-editor-header";
 
 import { HydrateClient } from "@/trpc/sever";
 

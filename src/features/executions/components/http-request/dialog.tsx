@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -12,10 +13,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FieldGroup } from "@/components/ui/field";
-import { FormInput, FormSelect, FormTextarea } from "@/components/hook-form";
 import { SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+
+import { FormInput, FormSelect, FormTextarea } from "@/components/hook-form";
 
 const formSchema = z.object({
   endpoint: z.url({ error: "Please enter a valid URL" }),
@@ -29,37 +30,33 @@ interface HttpRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: IHttpRequestFormSchema) => void;
-  defaultEndpoint?: string;
-  defualtMethod?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  defualtBody?: string;
+  defaultValues?: Partial<IHttpRequestFormSchema>;
 }
 
 export const HttpRequestDialog = ({
   onOpenChange,
   open,
   onSubmit,
-  defaultEndpoint = "",
-  defualtMethod = "GET",
-  defualtBody = "",
+  defaultValues = {},
 }: HttpRequestDialogProps) => {
   const form = useForm<IHttpRequestFormSchema>({
-    resolver: zodResolver(formSchema), 
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      endpoint: defaultEndpoint,
-      method: defualtMethod,
-      body: defualtBody,
+      endpoint: defaultValues.endpoint,
+      method: defaultValues.method || "GET",
+      body: defaultValues.body,
     },
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
-        endpoint: defaultEndpoint,
-        method: defualtMethod,
-        body: defualtBody,
+        endpoint: defaultValues.endpoint,
+        method: defaultValues.method,
+        body: defaultValues.body,
       });
     }
-  }, [defaultEndpoint, defualtBody, defualtMethod, form, open]);
+  }, [defaultValues, form, open]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const watchMethod = form.watch("method");
@@ -109,15 +106,16 @@ export const HttpRequestDialog = ({
                 control={form.control}
                 name="body"
                 label="Body"
-                placeholder={`{ \n\t"userId": "{{httpResponse.data.id}}",\n\t"name": "{{httpResponse.data.name}}",\n\t"items": "{{httpResponse.data.items}}",\n}`}
+                placeholder={`{ \n\t"userId": "{{httpResponse.data.id}}",\n\t"name": "{{httpResponse.data.name}}"\n}`}
                 description={`JSON with template variable. Use {{"variables"}} for simple values or {{json variable}} to stringify objects`}
+                className="max-h-25"
               />
             )}
-          </FieldGroup>
 
-          <DialogFooter className="mt-4">
-            <Button type="submit">Save</Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </FieldGroup>
         </form>
       </DialogContent>
     </Dialog>

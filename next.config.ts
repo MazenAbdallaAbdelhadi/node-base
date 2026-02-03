@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         destination: "/workflows",
         permanent: true,
       },
+      {
+        source: "/settings",
+        destination: "/settings/profile",
+        permanent: true,
+      },
     ];
   },
   /* config options here */

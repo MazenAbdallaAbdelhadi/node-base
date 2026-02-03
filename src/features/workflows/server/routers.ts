@@ -2,10 +2,11 @@ import { generateSlug } from "random-word-slugs";
 import { Edge, Node } from "@xyflow/react";
 import z from "zod";
 
+import { NodeType } from "@/generated/prisma/enums";
+
 import prisma from "@/lib/prisma";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { PAGINATION } from "@/constants/pagination";
-import { NodeType } from "@/generated/prisma/enums";
 
 export const workflowsRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {

@@ -29,16 +29,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-import { cn } from "@/lib/utils";
-
-import { LoadingButton } from "./loading-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
+
+import { cn } from "@/lib/utils";
+
+import { LoadingButton } from "./loading-button";
 
 type EntytyHeaderProps = {
   title: string;
@@ -94,6 +94,8 @@ export const EntityHeader: React.FC<EntytyHeaderProps> = ({
     </div>
   );
 };
+// -------------------------------
+// -------------------------------
 
 type EntytyContainerProps = {
   children: React.ReactNode;
@@ -121,6 +123,8 @@ export const EntityContainer: React.FC<EntytyContainerProps> = ({
     </div>
   );
 };
+// -------------------------------
+// -------------------------------
 
 type EntitySearchProps = {
   value: string;
@@ -146,6 +150,8 @@ export const EntitySearch: React.FC<EntitySearchProps> = ({
     </InputGroup>
   );
 };
+// -------------------------------
+// -------------------------------
 
 type EntityPaginationProps = {
   page: number;
@@ -187,6 +193,8 @@ export const EntityPagination: React.FC<EntityPaginationProps> = ({
     </div>
   );
 };
+// -------------------------------
+// -------------------------------
 
 interface ViewState {
   message?: string;
@@ -200,6 +208,8 @@ export const EntityLoadingState: React.FC<ViewState> = ({ message }) => {
     </div>
   );
 };
+// -------------------------------
+// -------------------------------
 
 export const EntityErrorState: React.FC<ViewState> = ({ message }) => {
   return (
@@ -209,6 +219,8 @@ export const EntityErrorState: React.FC<ViewState> = ({ message }) => {
     </div>
   );
 };
+// -------------------------------
+// -------------------------------
 
 interface EmptyStateProps extends ViewState {
   onNew?: () => void;
@@ -239,6 +251,8 @@ export const EntityEmptyState: React.FC<EmptyStateProps> = ({
     </Empty>
   );
 };
+// -------------------------------
+// -------------------------------
 
 interface EntityListProps<T> {
   items: T[];
@@ -273,6 +287,8 @@ export function EntityList<T>({
     </div>
   );
 }
+// -------------------------------
+// -------------------------------
 
 interface EntityItemProps {
   href: string;
@@ -309,7 +325,7 @@ export const EntityItem: React.FC<EntityItemProps> = ({
   };
 
   return (
-    <Link href={href}>
+    <Link href={href} prefetch>
       <Card
         className={cn(
           "p-4 shadow-none hover:shadow cursor-pointer",
@@ -363,3 +379,5 @@ export const EntityItem: React.FC<EntityItemProps> = ({
     </Link>
   );
 };
+// -------------------------------
+// -------------------------------
