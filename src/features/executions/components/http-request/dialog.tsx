@@ -19,13 +19,19 @@ import { Button } from "@/components/ui/button";
 import { FormInput, FormSelect, FormTextarea } from "@/components/hook-form";
 
 const formSchema = z.object({
+  variableName: z
+    .string()
+    .min(1, { error: "Variable name is required" })
+    .regex(/^[A-Za-z_$][A-za-z0-9*$]/, {
+      error:
+        "Varibale name must start with a letter or underScore and contain letters, numbers, and underscores",
+    }),
   endpoint: z.url({ error: "Please enter a valid URL" }),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
   body: z.string().optional(),
   // .refine() TODO:
 });
 export type IHttpRequestFormSchema = z.infer<typeof formSchema>;
-
 interface HttpRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -42,6 +48,7 @@ export const HttpRequestDialog = ({
   const form = useForm<IHttpRequestFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      variableName: defaultValues.variableName || "",
       endpoint: defaultValues.endpoint,
       method: defaultValues.method || "GET",
       body: defaultValues.body,
@@ -59,6 +66,8 @@ export const HttpRequestDialog = ({
   }, [defaultValues, form, open]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
+  const watchVariableName = form.watch("variableName");
+
   const watchMethod = form.watch("method");
   const showBodyField = ["POST", "PUT", "PATCH"].includes(watchMethod);
 
@@ -79,6 +88,14 @@ export const HttpRequestDialog = ({
 
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <FieldGroup>
+            <FormInput
+              control={form.control}
+              name="variableName"
+              label="Variable Name"
+              placeholder="myApiCall"
+              description={`Use this name to reference the result in other nodes: {{${watchVariableName || "myApiCall"}.httpResponse.data}}`}
+            />
+
             <FormSelect
               control={form.control}
               name="method"

@@ -15,14 +15,17 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
 }) => {
   //  TODO: Publish "loading" state for http request
 
+  const variableName = data.variableName;
+
   if (!data.endpoint) {
     // TODO: Publish "error" state for http request
     throw new NonRetriableError("HTTP Request node: No endpoint configured");
   }
 
-  await step.run("debug", async () => {
-    return { ...data };
-  });
+  if (!variableName) {
+    // TODO: Publish "error" state for http request
+    throw new NonRetriableError("Variable name not configured");
+  }
 
   const result = await step.run("http-trigger", async () => {
     const endpoint = data.endpoint!;
@@ -33,6 +36,9 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
     if (["POST", "PUT", "PATCH"].includes(method)) {
       if (data.body) {
         options.body = data.body;
+        options.headers = {
+          "Content-Type": "application/json",
+        };
       }
     }
 
@@ -43,13 +49,17 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
       ? await response.json()
       : await response.text();
 
-    return {
-      ...context,
+    const responsePayload = {
       httpResponse: {
         status: response.status,
         statusText: response.statusText,
         data: responseData,
       },
+    };
+
+    return {
+      ...context,
+      [variableName]: responsePayload,
     };
   });
 
