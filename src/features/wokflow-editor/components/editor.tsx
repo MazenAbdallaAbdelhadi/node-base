@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   ReactFlow,
@@ -32,6 +32,8 @@ import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
 import { editorAtom } from "../store/atoms";
 
 import "@xyflow/react/dist/style.css";
+import { NodeType } from "@/generated/prisma/enums";
+import { ExecuteWorkflowButton } from "./execute-workflow-button";
 
 export const WorkflowEditorLoading = () => {
   return <EntityLoadingState message="Loading Editor..." />;
@@ -66,6 +68,10 @@ export const WorkflowEditor = ({ workflowId }: { workflowId: string }) => {
     [],
   );
 
+  const hasManualTrigger = useMemo(() => {
+    return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+  }, [nodes]);
+
   return (
     <div className="size-full">
       <ReactFlow
@@ -92,6 +98,11 @@ export const WorkflowEditor = ({ workflowId }: { workflowId: string }) => {
         <Panel position="top-right">
           <AddNodeButton />
         </Panel>
+        {hasManualTrigger && (
+          <Panel position="bottom-center">
+            <ExecuteWorkflowButton workflowId={workflowId} />
+          </Panel>
+        )}
       </ReactFlow>
     </div>
   );
