@@ -61,6 +61,7 @@ export const HttpRequestDialog = ({
         endpoint: defaultValues.endpoint,
         method: defaultValues.method,
         body: defaultValues.body,
+        variableName: defaultValues.variableName,
       });
     }
   }, [defaultValues, form, open]);

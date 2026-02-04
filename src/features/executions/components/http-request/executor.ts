@@ -1,9 +1,17 @@
+import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
 import ky, { type Options as KyOptions } from "ky";
 
 import type { NodeExecutor } from "@/features/executions/types";
 
 import { IHttpRequestFormSchema } from "./dialog";
+
+Handlebars.registerHelper("json", (context) => {
+  const jsonString = JSON.stringify(context, null, 2);
+  const safeString = new Handlebars.SafeString(jsonString);
+
+  return safeString;
+});
 
 type HttpRequestData = Partial<IHttpRequestFormSchema>;
 
@@ -22,20 +30,36 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
     throw new NonRetriableError("HTTP Request node: No endpoint configured");
   }
 
+  if (!data.method) {
+    // TODO: Publish "error" state for http request
+    throw new NonRetriableError("HTTP Request node: No method configured");
+  }
+
   if (!variableName) {
     // TODO: Publish "error" state for http request
     throw new NonRetriableError("Variable name not configured");
   }
 
   const result = await step.run("http-trigger", async () => {
-    const endpoint = data.endpoint!;
+    const template = Handlebars.compile(data.endpoint!);
+    const endpoint: string = template(context);
+
+    if (!endpoint || typeof endpoint !== "string") {
+      throw new NonRetriableError(
+        "Endpoint template must resolve to a no-empty string",
+      );
+    }
+
     const method = data.method || "GET";
 
     const options: KyOptions = { method };
 
     if (["POST", "PUT", "PATCH"].includes(method)) {
       if (data.body) {
-        options.body = data.body;
+        const resolved = Handlebars.compile(data.body)(context);
+        JSON.parse(resolved);
+
+        options.body = resolved;
         options.headers = {
           "Content-Type": "application/json",
         };
