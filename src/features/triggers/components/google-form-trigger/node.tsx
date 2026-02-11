@@ -2,24 +2,23 @@
 
 import { NodeProps } from "@xyflow/react";
 import { memo, useState } from "react";
-import { MousePointerIcon } from "lucide-react";
 
-import { MANUAL_TRIGGER_CHANNEL_NAME } from "@/inngest/channels/manual-trigger";
+import { GOOGLE_FORM_TRIGGER_CHANNEL_NAME } from "@/inngest/channels/google-form-trigger";
 import { useNodeStatus } from "@/features/executions/hooks/use-node-status";
 
 import { BaseTriggerNode } from "../base-trigger-node";
 
-import { ManualTriggerDialog } from "./dialog";
-import { fetchManualTriggerRealtimeToken } from "./actions";
+import { GoogleFormTriggerDialog } from "./dialog";
+import { fetchGoogleFormTriggerRealtimeToken } from "./actions";
 
-export const ManualTriggerNode = memo((props: NodeProps) => {
+export const GoogleFormTriggerNode = memo((props: NodeProps) => {
   const [open, setOpen] = useState(false);
 
   const nodeStatus = useNodeStatus({
     nodeId: props.id,
-    channel: MANUAL_TRIGGER_CHANNEL_NAME,
+    channel: GOOGLE_FORM_TRIGGER_CHANNEL_NAME,
     topic: "status",
-    refreshToken: fetchManualTriggerRealtimeToken,
+    refreshToken: fetchGoogleFormTriggerRealtimeToken,
   });
 
   const handleOpenSettings = () => {
@@ -28,11 +27,12 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
 
   return (
     <>
-      <ManualTriggerDialog open={open} onOpenChange={setOpen} />
+      <GoogleFormTriggerDialog open={open} onOpenChange={setOpen} />
       <BaseTriggerNode
         {...props}
-        icon={MousePointerIcon}
-        name="When clicking 'Execute workflow'"
+        icon={"/googleform.svg"}
+        name="Google Form"
+        description="when form is submitted"
         status={nodeStatus}
         onSettings={handleOpenSettings}
         onDoubleClick={handleOpenSettings}
@@ -41,4 +41,4 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
   );
 });
 
-ManualTriggerNode.displayName = "ManualTriggerNode";
+GoogleFormTriggerNode.displayName = "GoogleFormTriggerNode";
