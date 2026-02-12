@@ -44,7 +44,7 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
   }
 
   try {
-    const result = await step.run("http-trigger", async () => {
+    const result = await step.run("http-request", async () => {
       const template = Handlebars.compile(data.endpoint!);
       const endpoint: string = template(context);
 

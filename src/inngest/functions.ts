@@ -5,9 +5,14 @@ import { NodeType } from "@/generated/prisma/enums";
 
 import { getExecutor } from "@/features/executions/lib/executor-registry";
 
-import { httpRequestChannel } from "./channels/http-request";
+// TRIGGERS
 import { manualTriggerChannel } from "./channels/manual-trigger";
 import { googleFormTriggerChannel } from "./channels/google-form-trigger";
+
+// EXECUTIONS
+import { httpRequestChannel } from "./channels/http-request";
+import { geminiChannel } from "./channels/gemini";
+import { openAiChannel } from "./channels/openai";
 
 import { inngest } from "./client";
 import { topologicalSort } from "./utils";
@@ -20,6 +25,8 @@ export const executeWorkflow = inngest.createFunction(
       httpRequestChannel(),
       manualTriggerChannel(),
       googleFormTriggerChannel(),
+      geminiChannel(),
+      openAiChannel(),
     ],
   },
   async ({ event, step, publish }) => {
