@@ -7,14 +7,20 @@ import {
 
 import { FormBase, FormControlFunc } from "./form-base";
 
-export const FormSelect: FormControlFunc<{ children: React.ReactNode, placeholder?: string, onValueChange?: (value: string) => void }> = ({
-  children,
-  ...props
-}) => {
+export const FormSelect: FormControlFunc<{
+  children: React.ReactNode;
+  placeholder?: string;
+  onValueChange?: (value: string) => void;
+  disabled?: boolean;
+}> = ({ children, disabled, ...props }) => {
   return (
     <FormBase {...props}>
       {({ onChange, onBlur, ...field }) => (
-        <Select {...field} onValueChange={props.onValueChange || onChange}>
+        <Select
+          {...field}
+          onValueChange={props.onValueChange || onChange}
+          disabled={disabled}
+        >
           <SelectTrigger
             aria-invalid={field["aria-invalid"]}
             id={field.id}

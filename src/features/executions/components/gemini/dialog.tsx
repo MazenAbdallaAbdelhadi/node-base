@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -12,12 +13,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { SelectItem } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { FormInput, FormSelect, FormTextarea } from "@/components/hook-form";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+
+import { CredentialType } from "@/generated/prisma/enums";
+
+import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
 
 export const AVAILABLE_MODELS = [
   "gemini-flash-lite-latest",
@@ -36,11 +41,12 @@ const formSchema = z.object({
         "Varibale name must start with a letter or underScore and contain letters, numbers, and underscores",
     }),
   model: z.enum(AVAILABLE_MODELS),
+  credentialId: z.string().min(1, "Credential is required"),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, { error: "User prompt is required" }),
 });
-
 export type IGeminiFormSchema = z.infer<typeof formSchema>;
+
 interface GeminiDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -54,9 +60,13 @@ export const GeminiDialog = ({
   onSubmit,
   defaultValues = {},
 }: GeminiDialogProps) => {
+  const { data: credentials, isLoading: isLoadingCredentials } =
+    useCredentialsByType(CredentialType.GEMINI);
+
   const form = useForm<IGeminiFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      credentialId: defaultValues.credentialId || "",
       variableName: defaultValues.variableName || "",
       model: defaultValues.model || AVAILABLE_MODELS[0],
       userPrompt: defaultValues.userPrompt || "",
@@ -67,6 +77,7 @@ export const GeminiDialog = ({
   useEffect(() => {
     if (open) {
       form.reset({
+        credentialId: defaultValues.credentialId || "",
         variableName: defaultValues.variableName || "",
         model: defaultValues.model || AVAILABLE_MODELS[0],
         userPrompt: defaultValues.userPrompt || "",
@@ -117,6 +128,28 @@ export const GeminiDialog = ({
                 {AVAILABLE_MODELS.map((model) => (
                   <SelectItem key={model} value={model}>
                     {model}
+                  </SelectItem>
+                ))}
+              </FormSelect>
+
+              <FormSelect
+                control={form.control}
+                name="credentialId"
+                label="Gemini Credential"
+                placeholder="Select a Credential"
+                disabled={isLoadingCredentials || !credentials?.length}
+              >
+                {credentials?.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={"/gemini.svg"}
+                        alt={"Gemini"}
+                        width={16}
+                        height={16}
+                      />
+                      <span>{option.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </FormSelect>

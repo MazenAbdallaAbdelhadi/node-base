@@ -3,9 +3,11 @@ import { NonRetriableError } from "inngest";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 
-import type { NodeExecutor } from "@/features/executions/types";
-
 import { openAiChannel } from "@/inngest/channels/openai";
+
+import prisma from "@/lib/prisma";
+
+import type { NodeExecutor } from "@/features/executions/types";
 
 import { type IOpenAiFormSchema } from "./dialog";
 
@@ -27,24 +29,44 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
 }) => {
   await publish(openAiChannel().status({ nodeId, status: "loading" }));
 
-  const systemPrompt = data.systemPrompt
-    ? Handlebars.compile(data.systemPrompt)(context)
-    : "You are a helpful assistant.";
-  const userPrompt = Handlebars.compile(data.userPrompt)(context);
-
-  // TODO: Fetch credential that user selected
-  const credentialValue = "NO_API_KEY";
-
-  const openai = createOpenAI({
-    apiKey: credentialValue,
-  });
-
   const variableName = data.variableName;
 
   if (!variableName) {
     await publish(openAiChannel().status({ nodeId, status: "error" }));
     throw new NonRetriableError("Variable name not configured");
   }
+
+  if (!data.credentialId) {
+    await publish(openAiChannel().status({ nodeId, status: "error" }));
+    throw new NonRetriableError("OpenAI node: Credential is required");
+  }
+
+  if (!data.userPrompt) {
+    await publish(openAiChannel().status({ nodeId, status: "error" }));
+    throw new NonRetriableError("OpenAI node: User prompt is required");
+  }
+
+  const systemPrompt = data.systemPrompt
+    ? Handlebars.compile(data.systemPrompt)(context)
+    : "You are a helpful assistant.";
+  const userPrompt = Handlebars.compile(data.userPrompt)(context);
+
+  const credential = await step.run("get-credential", () => {
+    return prisma.credential.findUnique({
+      where: {
+        id: data.credentialId,
+      },
+    });
+  });
+
+  if (!credential) {
+    await publish(openAiChannel().status({ nodeId, status: "error" }));
+    throw new NonRetriableError("OpenAI node: Credential not found");
+  }
+
+  const openai = createOpenAI({
+    apiKey: credential.value,
+  });
 
   try {
     const { steps } = await step.ai.wrap("openai-generate-text", generateText, {

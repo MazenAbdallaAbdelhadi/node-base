@@ -68,7 +68,7 @@ const WorkflowItem = ({ item }: { item: Workflow }) => {
   );
 };
 
-export const WorkflowsHeader = ({ disable }: { disable?: boolean }) => {
+const WorkflowsHeader = ({ disable }: { disable?: boolean }) => {
   const router = useRouter();
   const createWorkflow = useCreateWorkflow();
 
