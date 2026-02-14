@@ -43,7 +43,7 @@ import { LoadingButton } from "./loading-button";
 type EntytyHeaderProps = {
   title: string;
   description?: string;
-  newButtonLabel: string;
+  newButtonLabel?: string;
   disable?: boolean;
   isCreating?: boolean;
 } & (
